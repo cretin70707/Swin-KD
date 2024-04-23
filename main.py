@@ -4,6 +4,8 @@ from models.ultra_swin import UltraSwin
 from datamodules.EchoNetDataModule import EchoNetDataModule
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from pytorch_lightning.callbacks import ModelCheckpoint
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--mode", type=str, default="train", help="Train or test")
@@ -48,8 +50,15 @@ if __name__ == '__main__':
                         num_workers=num_workers, 
                         dataset_mode=dataset_mode)
 
+    checkpoint_callback = ModelCheckpoint(
+    monitor="val_loss",  # Metric to monitor
+    dirpath="checkpoints",  # Directory to save checkpoints
+    filename="ultraswin-{epoch:02d}-{val_loss:.2f}",  # Filename format
+    save_top_k=3,  # Save the top 3 models based on the monitored metric
+    mode="min",  # Monitor the metric for minimization
+    )
     if variant == 'small':
-        depths = [2, 2, 18, 2]
+        depths = [2, 2, 14, 2]
         num_heads = [3, 6, 12, 24]
         embed_dim = 96
     else: # base
@@ -67,13 +76,14 @@ if __name__ == '__main__':
 
     trainer = pl.Trainer(accelerator=accelerator, 
                 max_epochs=max_epochs, 
-                num_sanity_val_steps=1, 
-                auto_scale_batch_size=True, 
+                num_sanity_val_steps=1,  
                 enable_model_summary=True,
                 logger=logger,
                 precision=16,
                 accumulate_grad_batches=2,
-                callbacks=[EarlyStopping(monitor="val_loss", mode="min", patience=10)])
+                callbacks=[EarlyStopping(monitor="val_loss", mode="min", patience=10),
+                           checkpoint_callback,
+                          ])
 
     if mode == 'train':
         trainer.fit(model=ultra_swin, datamodule=data_module, ckpt_path=ckpt_path)
