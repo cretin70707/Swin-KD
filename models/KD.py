@@ -22,6 +22,7 @@ class KDFrame(pl.LightningModule):
         self.temperature = temperature
         self.alpha = alpha
         self.teacher_model.eval()
+        self.batch_size = 4
         self.loss_function = nn.KLDivLoss(reduction="batchmean")
 
     def training_step(self, batch, batch_idx):
