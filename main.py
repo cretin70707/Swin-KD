@@ -58,7 +58,7 @@ if __name__ == '__main__':
     mode="min",  # Monitor the metric for minimization
     )
     if variant == 'small':
-        depths = [2, 2, 14, 2]
+        depths = [2, 2, 18, 2]
         num_heads = [3, 6, 12, 24]
         embed_dim = 96
     else: # base
