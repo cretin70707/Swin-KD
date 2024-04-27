@@ -13,15 +13,12 @@ from losses.mse import mse_loss
 from losses.r2 import r2_loss
 from sklearn.metrics import r2_score
 from losses.rmse import RMSE
-from copy import deepcopy
 
 class KDFrame(pl.LightningModule):
     def __init__(self, teacher_model, student_model, temperature=1.0, alpha=0.5):
         super().__init__()
-        self.save_hyperparameters()
-        
         self.teacher_model = teacher_model
-        self.student_model = deepcopy(self.original_student_model)
+        self.student_model = student_model
         self.temperature = temperature
         self.alpha = alpha
         self.teacher_model.eval()
@@ -48,7 +45,6 @@ class KDFrame(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         filename, nvideo, nlabel, ejection, repeat, fps = batch
         ef_label = ejection.type(torch.float32) / 100.
-
         ef_pred = self(nvideo)
         loss = F.mse_loss(ef_pred,ef_label)
 
@@ -71,18 +67,11 @@ class KDFrame(pl.LightningModule):
         total_loss = self.alpha * student_loss + (1 - self.alpha) * distillation_loss
 
         return total_loss
+    
 
     
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=1e-4)
+        optimizer = torch.optim.AdamW(self.student_model.parameters(), lr=1e-4, weight_decay=1e-4)
         lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.85, verbose=True)
 
         return [optimizer], [lr_scheduler]
-
-    def on_save_checkpoint(self, checkpoint):
-        # Save the state dictionary of the student model
-        checkpoint["student_state_dict"] = self.student_model.state_dict()
-
-    def on_load_checkpoint(self, checkpoint):
-        # Load the state dictionary into the student model
-        self.student_model.load_state_dict(checkpoint["student_state_dict"])
