@@ -45,7 +45,6 @@ class KDFrame(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         filename, nvideo, nlabel, ejection, repeat, fps = batch
         ef_label = ejection.type(torch.float32) / 100.
-
         ef_pred = self(nvideo)
         loss = F.mse_loss(ef_pred,ef_label)
 
