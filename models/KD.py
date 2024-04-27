@@ -17,11 +17,9 @@ from copy import deepcopy
 
 class KDFrame(pl.LightningModule):
     def __init__(self, teacher_model, student_model, temperature=1.0, alpha=0.5):
-        super().__init__()
-        self.save_hyperparameters()
-        
+        super().__init__()        
         self.teacher_model = teacher_model
-        self.student_model = deepcopy(self.original_student_model)
+        self.student_model = deepcopy(student_model)
         self.temperature = temperature
         self.alpha = alpha
         self.teacher_model.eval()
@@ -74,7 +72,7 @@ class KDFrame(pl.LightningModule):
 
     
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=1e-4)
+        optimizer = torch.optim.AdamW(self.student_model.parameters(), lr=1e-4, weight_decay=1e-4)
         lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.85, verbose=True)
 
         return [optimizer], [lr_scheduler]
