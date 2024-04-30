@@ -5,5 +5,6 @@ vidaug
 scikit_image
 scikit-learn
 torch
+torchvision
 opencv-python
 opencv-python-headless
