@@ -52,7 +52,7 @@ def save_uploaded_file(uploaded_file, folder_path):
         st.error(f"Error saving video: {e}")
 
 st.title('Calculate your ejection fraction!')
-uploaded_file = st.file_uploader("Upload Video", type="avi")
+uploaded_file = st.file_uploader("Upload Your Echocardiogram", type="avi")
 file_path = "uploaded_videos"
 
 # Load the model
