@@ -4,3 +4,4 @@ einops
 vidaug
 scikit_image
 scikit-learn
+torch
