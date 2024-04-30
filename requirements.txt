@@ -1,3 +1,4 @@
+streamlit
 pytorch_lightning
 timm
 einops
@@ -8,3 +9,4 @@ torch
 torchvision
 opencv-python
 opencv-python-headless
+numpy
